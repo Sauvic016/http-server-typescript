@@ -22,15 +22,29 @@ const server = net.createServer((socket: net.Socket) => {
     ---socket.write(data);
     ---socket.end();
     */
-    if (path === "/") {
-      socket.end("HTTP/1.1 200 OK\r\n\r\n");
+    // if (path === "/") {
+    //   socket.end("HTTP/1.1 200 OK\r\n\r\n");
+    // } else {
+    //   socket.end("HTTP/1.1 404 Not Found\r\n\r\n");
+    // }
+
+    if (path.startsWith("/echo/")) {
+      // const text = path.split("/echo/")[1];
+      const text = path.slice("/echo/".length);
+      socket.end(
+        "HTTP/1.1 200 OK\r\n" +
+          "Content-Type: text/plain\r\n" +
+          `Content-Length: ${Buffer.byteLength(text)}\r\n` +
+          "\r\n" +
+          `${text}`,
+      );
     } else {
       socket.end("HTTP/1.1 404 Not Found\r\n\r\n");
     }
   });
   socket.on("close", () => {
     console.log("Client disconnected");
-    socket.end();
+    // socket.end(); not required here
   });
 });
 
