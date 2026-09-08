@@ -1,4 +1,3 @@
-[![progress-banner](https://backend.codecrafters.io/progress/http-server/e2c52696-a307-473e-9db7-b850e78924a0)](https://app.codecrafters.io/users/Sauvic016?r=2qF)
 
 This is a starting point for TypeScript solutions to the
 ["Build Your Own HTTP server" Challenge](https://app.codecrafters.io/courses/http-server/overview).
