@@ -34,3 +34,7 @@ Note: This section is for stages 2 and beyond.
    `app/main.ts`.
 1. Run `codecrafters submit` to submit your solution to CodeCrafters. Test
    output will be streamed to your terminal.
+
+{{#lang_is_javascript}} In most languages, you'd need to either use threads or implement an Event Loop to do this. In JavaScript however, since the concurrency model itself is based on an event loop, most standard library functions are designed to support this kind of concurrent behaviour out of the box. It is very likely that the code you had for the previous stage will pass this stage without any changes! {{/lang_is_javascript}}
+
+{{#lang_is_typescript}} In most languages, you'd need to either use threads or implement an Event Loop to do this. In TypeScript however, since the concurrency model itself is based on an event loop, most standard library functions are designed to support this kind of concurrent behaviour out of the box. It is very likely that the code you had for the previous stage will pass this stage without any changes! {{/lang_is_typescript}}
