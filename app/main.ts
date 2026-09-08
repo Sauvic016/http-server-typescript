@@ -9,8 +9,11 @@ const server = net.createServer((socket: net.Socket) => {
     // socket.write("HTTP/1.1 200 OK\r\n" + "Content-Type: text/plain\r\n" + "Content-Length: 5\r\n" + "\r\n" + "Hello");
 
     const request = data.toString();
-    const [requestLine] = request.split("\r\n");
+    const requestLines = request.split("\r\n");
+
+    const requestLine = requestLines[0];
     const path = requestLine.split(" ")[1];
+
     // if (path === "/") {
     //   socket.write("HTTP/1.1 200 OK\r\n\r\n");
     // } else {
@@ -27,21 +30,44 @@ const server = net.createServer((socket: net.Socket) => {
     // } else {
     //   socket.end("HTTP/1.1 404 Not Found\r\n\r\n");
     // }
+    // -------------------------------------------------
+    // if (path.startsWith("/echo/")) {
+    //   // const text = path.split("/echo/")[1];
+    //   const text = path.slice("/echo/".length);
+    //   socket.end(
+    //     "HTTP/1.1 200 OK\r\n" +
+    //       "Content-Type: text/plain\r\n" +
+    //       `Content-Length: ${Buffer.byteLength(text)}\r\n` +
+    //       "\r\n" +
+    //       `${text}`,
+    //   );
+    // } else {
+    //   socket.end("HTTP/1.1 404 Not Found\r\n\r\n");
+    // }
 
-    if (path.startsWith("/echo/")) {
-      // const text = path.split("/echo/")[1];
-      const text = path.slice("/echo/".length);
+    if (path === "/user-agent") {
+      // const userAgent = requestLines
+      //   .filter((reqL) => reqL.startsWith("User-Agent")) this is wrong since the useragent is case insensitive
+      //   .join("")
+      //   .split(":")[1]
+      //   .trim();
+
+      const userAgentLine = requestLines.find((line) => line.toLowerCase().startsWith("user-agent:"));
+
+      const userAgent = userAgentLine?.split(":")[1].trim() ?? "";
+
       socket.end(
         "HTTP/1.1 200 OK\r\n" +
           "Content-Type: text/plain\r\n" +
-          `Content-Length: ${Buffer.byteLength(text)}\r\n` +
+          `Content-Length: ${Buffer.byteLength(userAgent)}\r\n` +
           "\r\n" +
-          `${text}`,
+          userAgent,
       );
     } else {
       socket.end("HTTP/1.1 404 Not Found\r\n\r\n");
     }
   });
+
   socket.on("close", () => {
     console.log("Client disconnected");
     // socket.end(); not required here
