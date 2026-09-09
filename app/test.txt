@@ -1,0 +1,5 @@
+Calling a function multiple times is a very efficient way to work. The
+code describing a pet is written once in the function. Then, anytime you
+want to describe a new pet, you call the function with the new pet’s infor­
+mation. Even if the code for describing a pet were to expand to 10 lines, you
+could still describe a new pet in just one line by calling the function again.
