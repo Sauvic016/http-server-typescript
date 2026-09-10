@@ -1,5 +1,6 @@
 import * as net from "node:net";
 import fs from "node:fs";
+import { getClientEncoding } from "./utils.ts";
 
 const args = process.argv.slice(2);
 const directoryIndex = args.indexOf("--directory");
@@ -9,14 +10,16 @@ const handleNotFoundRoute = (socket: net.Socket) => {
   socket.end("HTTP/1.1 404 Not Found\r\n\r\n");
 };
 
-const handleEchoRoute = (socket: net.Socket, path: string) => {
+const handleEchoRoute = (socket: net.Socket, path: string, clientEncoding?: string) => {
   const text = path.slice("/echo/".length);
+
   socket.end(
     "HTTP/1.1 200 OK\r\n" +
       "Content-Type: text/plain\r\n" +
+      (clientEncoding === "gzip" ? "Content-Encoding: gzip\r\n" : "") +
       `Content-Length: ${Buffer.byteLength(text)}\r\n` +
       "\r\n" +
-      `${text}`,
+      text,
   );
 };
 
@@ -120,7 +123,7 @@ const server = net.createServer((socket: net.Socket) => {
     if (path === "/") {
       socket.end("HTTP/1.1 200 OK\r\n\r\n");
     } else if (path.startsWith("/echo/")) {
-      handleEchoRoute(socket, path);
+      handleEchoRoute(socket, path, getClientEncoding(requestLines));
     } else if (path === "/user-agent") {
       handleUserAgentRoute(socket, requestLines);
     } else if (path.startsWith("/files/")) {
