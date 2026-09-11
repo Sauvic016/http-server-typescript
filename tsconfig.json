@@ -1,4 +1,6 @@
 {
+  "include": ["app/**/*.ts"],
+  "exclude": ["node_modules", "dist"],
   "compilerOptions": {
     // Enable latest features
     "lib": ["ESNext", "DOM"],

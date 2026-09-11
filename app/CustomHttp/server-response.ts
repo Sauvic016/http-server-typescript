@@ -1,0 +1,29 @@
+import type { Socket } from "node:net";
+import type { HttpResponse } from "./types.ts";
+import { serializeResponse } from "./codec.ts";
+
+// A small facade over the response construction previously inside each route.
+export class ServerResponse {
+  statusCode: HttpResponse["status"] = 200;
+  #socket: Socket;
+  #headers: Record<string, string> = {};
+
+  constructor(socket: Socket) { this.#socket = socket; }
+
+  setHeader(name: string, value: string | number): this {
+    this.#headers[name] = String(value);
+    return this;
+  }
+
+  writeHead(statusCode: HttpResponse["status"], headers: Record<string, string | number> = {}): this {
+    this.statusCode = statusCode;
+    for (const [name, value] of Object.entries(headers)) this.setHeader(name, value);
+    return this;
+  }
+
+  end(data?: string | Uint8Array): this {
+    const body = data === undefined ? undefined : Buffer.from(data);
+    this.#socket.end(serializeResponse({ status: this.statusCode, headers: this.#headers, body }));
+    return this;
+  }
+}

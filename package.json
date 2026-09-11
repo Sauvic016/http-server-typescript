@@ -2,11 +2,13 @@
   "name": "@codecrafters/http-server",
   "devDependencies": {
     "@types/bun": "latest",
-    "@types/node": "^26.4.1"
+    "@types/node": "^26.4.1",
+    "typescript": "5.9.3"
   },
   "description": "Build your own HTTP server challenge, from CodeCrafters",
   "scripts": {
-    "dev": "bun run app/main.ts"
+    "dev": "bun run app/main.ts",
+    "typecheck": "tsc --noEmit"
   },
   "type": "module"
 }
