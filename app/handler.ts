@@ -1,4 +1,5 @@
 import fs from "node:fs";
+import { gzipSync } from "node:zlib";
 import { getClientEncoding } from "./utils.ts";
 import type { IncomingMessage, ServerResponse } from "./CustomHttp";
 
@@ -9,7 +10,11 @@ const handleNotFoundRoute = (res: ServerResponse) => {
 const handleEchoRoute = (res: ServerResponse, path: string, clientEncoding?: string) => {
   const text = path.slice("/echo/".length);
   res.setHeader("Content-Type", "text/plain");
-  if (clientEncoding === "gzip") res.setHeader("Content-Encoding", "gzip");
+  if (clientEncoding === "gzip") {
+    res.setHeader("Content-Encoding", "gzip");
+    res.end(gzipSync(text));
+    return;
+  }
   res.end(text);
 };
 
