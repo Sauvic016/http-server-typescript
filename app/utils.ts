@@ -1,5 +1,6 @@
 export const getClientEncoding = (requestLines: string[]): "gzip" | undefined => {
   const encodingLine = requestLines.slice(1).find((line) => line.toLowerCase().startsWith("accept-encoding:"));
+  
   if (!encodingLine) return undefined;
 
   const encodings = encodingLine

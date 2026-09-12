@@ -2,7 +2,9 @@ import type { HttpRequest, HttpResponse } from "./types.ts";
 
 const HEADER_SEPARATOR = "\r\n\r\n";
 
-type ParseResult = { kind: "incomplete" | "invalid" } | { kind: "complete"; request: HttpRequest };
+type ParseResult =
+  | { kind: "incomplete" | "invalid" }
+  | { kind: "complete"; request: HttpRequest; bytesConsumed: number };
 
 const parseHeaders = (lines: string[]): HttpRequest["headers"] => {
   const headers: HttpRequest["headers"] = Object.create(null);
@@ -22,7 +24,7 @@ const parseContentLength = (headers: HttpRequest["headers"]): number | undefined
   return /^\d+$/.test(lengthValue) && Number.isSafeInteger(contentLength) ? contentLength : undefined;
 };
 
-/** Returns incomplete until the headers and declared body bytes have arrived. */
+
 export const parseRequest = (buffer: Buffer): ParseResult => {
   const headerEnd = buffer.indexOf(HEADER_SEPARATOR);
 
@@ -44,6 +46,7 @@ export const parseRequest = (buffer: Buffer): ParseResult => {
   return {
     kind: "complete",
     request: { method, path, headers, requestLines, body: buffer.subarray(bodyStart, bodyStart + contentLength) },
+    bytesConsumed: bodyStart + contentLength,
   };
 };
 
@@ -59,8 +62,7 @@ const statusText = {
 /** Keeps binary bodies intact and calculates length from the bytes sent. */
 export const serializeResponse = (response: HttpResponse): Buffer => {
   const headers = { ...response.headers };
-  if (response.body !== undefined) headers["Content-Length"] = String(response.body.byteLength);
-  else if (response.status !== 200 && response.status !== 404) headers["Content-Length"] = "0";
+  headers["Content-Length"] = String(response.body?.byteLength ?? 0);
 
   const head =
     `HTTP/1.1 ${response.status} ${statusText[response.status]}\r\n` +

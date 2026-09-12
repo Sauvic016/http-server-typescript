@@ -9,7 +9,9 @@ const handleNotFoundRoute = (res: ServerResponse) => {
 
 const handleEchoRoute = (res: ServerResponse, path: string, clientEncoding?: string) => {
   const text = path.slice("/echo/".length);
+
   res.setHeader("Content-Type", "text/plain");
+
   if (clientEncoding === "gzip") {
     res.setHeader("Content-Encoding", "gzip");
     res.end(gzipSync(text));
@@ -26,6 +28,7 @@ const handleUserAgentRoute = (res: ServerResponse, requestLines: string[]) => {
 
 const handleFileRequestRoute = (res: ServerResponse, path: string, directoryPath?: string) => {
   const fileName = path.slice("/files/".length);
+
   if (!directoryPath) {
     res.writeHead(500).end();
     return;
@@ -35,6 +38,7 @@ const handleFileRequestRoute = (res: ServerResponse, path: string, directoryPath
     file = fs.readFileSync(`${directoryPath}/${fileName}`);
   } catch (error) {
     const code = error instanceof Error && "code" in error ? error.code : undefined;
+
     if (code === "ENOENT" || code === "ENOTDIR") {
       handleNotFoundRoute(res);
     } else {
@@ -47,6 +51,7 @@ const handleFileRequestRoute = (res: ServerResponse, path: string, directoryPath
 
 const handleFilePostRoute = (res: ServerResponse, path: string, body: Buffer, directoryPath?: string) => {
   const fileName = path.slice("/files/".length);
+
   if (!directoryPath) {
     res.writeHead(500).end();
     return;
@@ -66,6 +71,7 @@ const handleFilePostRoute = (res: ServerResponse, path: string, body: Buffer, di
 
 export function handleRequest(req: IncomingMessage, res: ServerResponse, directoryPath?: string): void {
   const path = req.url;
+
   if (path === "/") {
     res.end();
   } else if (path.startsWith("/echo/")) {

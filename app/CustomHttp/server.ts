@@ -13,20 +13,34 @@ export class CustomHttpServer extends Server {
 
     this.on("connection", (socket: Socket) => {
       let buffer = Buffer.alloc(0);
-      let handled = false;
+
       socket.on("data", (chunk) => {
-        if (handled) return;
         buffer = Buffer.concat([buffer, Buffer.from(chunk)]);
-        const result = parseRequest(buffer);
-        if (result.kind === "incomplete") return;
-        handled = true;
-        buffer = Buffer.alloc(0);
-        const res = new ServerResponse(socket);
-        if (result.kind !== "complete") {
-          res.writeHead(400).end();
-          return;
+
+        while (buffer.length > 0) {
+          const result = parseRequest(buffer);
+
+          if (result.kind === "incomplete") break;
+
+          if (result.kind !== "complete") {
+            new ServerResponse(socket, true).writeHead(400).end();
+            return;
+          }
+
+          buffer = buffer.subarray(result.bytesConsumed);
+
+          const closeConnection = result.request.headers["connection"]
+            ?.split(",")
+            .some((value) => value.trim().toLowerCase() === "close") ?? false;
+          const res = new ServerResponse(socket, closeConnection);
+
+          this.emit("request", new IncomingMessage(result.request), res);
+
+          if (closeConnection) {
+            buffer = Buffer.alloc(0);
+            return;
+          }
         }
-        this.emit("request", new IncomingMessage(result.request), res);
       });
       socket.on("close", () => console.log("Client disconnected"));
     });
